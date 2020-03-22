@@ -16,3 +16,6 @@
 
 # Built binary
 manuka-server
+
+# Dev Database
+database.db

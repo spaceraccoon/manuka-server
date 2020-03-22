@@ -1,17 +1,25 @@
 package main
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/spaceraccoon/manuka-server/config"
+	"github.com/spaceraccoon/manuka-server/models"
+	"github.com/spaceraccoon/manuka-server/routes"
 )
 
+var err error
+
 func main() {
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run(":3001")
+	config.DB, err = gorm.Open("sqlite3", "./database.db") // Need to add env goodness soon
+
+	if err != nil {
+		panic(err) // Add better error handling
+	}
+
+	defer config.DB.Close()
+	config.DB.AutoMigrate(&models.Campaign{}, &models.Action{})
+
+	r := routes.SetupRouter()
+	r.Run(":3001") // Remember to dotenv this soon
 }
