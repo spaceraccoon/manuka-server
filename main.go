@@ -1,8 +1,11 @@
 package main
 
 import (
+	"io/ioutil"
+	"log"
+
 	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/spaceraccoon/manuka-server/config"
 	"github.com/spaceraccoon/manuka-server/models"
 	"github.com/spaceraccoon/manuka-server/routes"
@@ -11,15 +14,21 @@ import (
 var err error
 
 func main() {
-	config.DB, err = gorm.Open("sqlite3", "./database.db") // Need to add env goodness soon
+	postgresPassword, err := ioutil.ReadFile("/run/secrets/postgres_password")
 
 	if err != nil {
-		panic(err) // Add better error handling
+		log.Fatal(err)
+	}
+
+	config.DB, err = gorm.Open("postgres", "host=postgres port=5432 sslmode=disable user=postgres dbname=postgres password="+string(postgresPassword))
+
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	defer config.DB.Close()
 	config.DB.AutoMigrate(&models.Campaign{}, &models.Action{})
 
 	r := routes.SetupRouter()
-	r.Run(":3001") // Remember to dotenv this soon
+	r.Run()
 }

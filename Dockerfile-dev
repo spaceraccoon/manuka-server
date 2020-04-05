@@ -1,0 +1,17 @@
+FROM golang:alpine
+
+# Set working directory
+WORKDIR /manuka-server
+
+# Copy project files for build
+ADD . .
+
+# Install dependencies
+RUN apk add --no-cache git
+RUN go get github.com/githubnemo/CompileDaemon
+
+# Build server
+RUN go build
+
+# Run server
+CMD ["CompileDaemon", "-command", "/manuka-server/manuka-server"]

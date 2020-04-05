@@ -5,8 +5,7 @@ import "time"
 // ActionType defines the different actions
 type ActionType int
 
-// Since sqlite doesn't support enums natively, we do it in golang
-// However, we might want to use https://github.com/jinzhu/gorm/issues/1978 for postgres
+// Enumerate various actions
 const (
 	Gist ActionType = iota
 	Pastebin
