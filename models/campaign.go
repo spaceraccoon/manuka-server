@@ -13,13 +13,13 @@ type Campaign struct {
 	CreatedAt time.Time  `json:"createdAt"`
 	UpdatedAt time.Time  `json:"updatedAt"`
 	DeletedAt *time.Time `json:"deletedAt"`
-	Name      string     `json:"name;not null"`
+	Name      string     `json:"name"`
 	Honeypots []Honeypot `json:"honeypots"`
 }
 
 // GetCampaigns gets all campaigns in database
 func GetCampaigns(campaigns *[]Campaign) (err error) {
-	if err = config.DB.Find(&campaigns).Error; err != nil {
+	if err = config.DB.Preload("Honeypots").Find(&campaigns).Error; err != nil {
 		return err
 	}
 	return nil
@@ -35,7 +35,7 @@ func CreateCampaign(campaign *Campaign) (err error) {
 
 // GetCampaign gets a campaign in the database corresponding to id
 func GetCampaign(campaign *Campaign, id int64) (err error) {
-	if err := config.DB.First(&campaign, id).Error; err != nil {
+	if err := config.DB.Preload("Honeypots").First(&campaign, id).Error; err != nil {
 		return err
 	}
 	return nil
