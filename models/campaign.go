@@ -14,7 +14,7 @@ type Campaign struct {
 	UpdatedAt time.Time  `json:"updatedAt"`
 	DeletedAt *time.Time `json:"deletedAt"`
 	Name      string     `json:"name;not null"`
-	Actions   []Action   `gorm:"many2many:campaign_actions" json:"actions"`
+	Honeypots []Honeypot `json:"honeypots"`
 }
 
 // GetCampaigns gets all campaigns in database

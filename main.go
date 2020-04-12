@@ -27,8 +27,8 @@ func main() {
 	}
 
 	defer config.DB.Close()
-	config.DB.AutoMigrate(&models.Campaign{}, &models.Action{})
+	config.DB.AutoMigrate(&models.Campaign{}, &models.Credential{}, &models.Honeypot{}, &models.Hit{}, &models.Listener{}, &models.Source{})
 
 	r := routes.SetupRouter()
-	r.Run()
+	r.Run(":8080")
 }
