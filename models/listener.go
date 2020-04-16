@@ -4,7 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-playground/validator/v10"
+
 	"github.com/spaceraccoon/manuka-server/config"
+)
+
+var (
+	ErrListenerNameRequired = fmt.Errorf("listener name required")
 )
 
 // Listener model
@@ -13,7 +19,31 @@ type Listener struct {
 	CreatedAt time.Time  `json:"createdAt"`
 	UpdatedAt time.Time  `json:"updatedAt"`
 	DeletedAt *time.Time `json:"deletedAt"`
-	Name      string     `json:"name"`
+	Name      string     `json:"name" validate:"required"`
+}
+
+// Validate validates struct fields
+func (l *Listener) Validate() error {
+	validate := validator.New()
+	if err := validate.Struct(l); err != nil {
+		if _, ok := err.(*validator.InvalidValidationError); ok {
+			return err
+		}
+
+		for _, validationErr := range err.(validator.ValidationErrors) {
+			switch validationErr.StructField() {
+			case "Name":
+				switch validationErr.ActualTag() {
+				case "required":
+					return ErrListenerNameRequired
+				}
+			default:
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 // GetListeners gets all listeners in database
