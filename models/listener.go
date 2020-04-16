@@ -22,9 +22,8 @@ type ListenerType int
 
 // Enumerate various listeners
 const (
-	FacebookListener ListenerType = iota
-	LoginListener
-	LinkedInListener
+	LoginListener ListenerType = iota + 1
+	SocialListener
 )
 
 // Listener model
@@ -35,8 +34,8 @@ type Listener struct {
 	DeletedAt *time.Time `json:"deletedAt"`
 	Name      string     `json:"name" validate:"required"`
 	Type      uint       `json:"type" validate:"required"`
-	URL       string     `json:"url"`
-	Email     string     `json:"email"`
+	URL       *string    `json:"url"`
+	Email     *string    `json:"email"`
 }
 
 // Validate validates struct fields
@@ -61,16 +60,12 @@ func (l *Listener) Validate() error {
 	}
 
 	switch ListenerType(l.Type) {
-	case FacebookListener:
-		if err := validate.Var(l.Email, "required"); err != nil {
-			return errListenerEmailRequired
-		}
 	case LoginListener:
-		if err := validate.Var(l.URL, "required"); err != nil {
+		if err := validate.Var(*l.URL, "required"); err != nil {
 			return errListenerURLRequired
 		}
-	case LinkedInListener:
-		if err := validate.Var(l.Email, "required"); err != nil {
+	case SocialListener:
+		if err := validate.Var(*l.Email, "required"); err != nil {
 			return errListenerEmailRequired
 		}
 	default:

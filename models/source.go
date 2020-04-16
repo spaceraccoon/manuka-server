@@ -12,6 +12,7 @@ import (
 var (
 	errSourceNameRequired   = fmt.Errorf("Source name required")
 	errSourceAPIKeyRequired = fmt.Errorf("Source API key required")
+	errSourceEmailRequired  = fmt.Errorf("Source email required")
 	errSourceTypeRequired   = fmt.Errorf("Source type required")
 	errSourceTypeInvalid    = fmt.Errorf("Source type invalid")
 )
@@ -21,7 +22,8 @@ type SourceType int
 
 // Enumerate various actions
 const (
-	FacebookSource SourceType = iota
+	FacebookSource SourceType = iota + 1
+	LinkedInSource
 	PastebinSource
 )
 
@@ -33,7 +35,8 @@ type Source struct {
 	DeletedAt *time.Time `json:"deletedAt"`
 	Name      string     `gorm:"not null" json:"name" validate:"required"`
 	Type      uint       `json:"type" validate:"required"`
-	APIKey    string     `json:"apiKey"`
+	APIKey    *string    `json:"apiKey"`
+	Email     *string    `json:"email"`
 	Honeypots []Honeypot `json:"honeypots"`
 }
 
@@ -65,9 +68,16 @@ func (s *Source) Validate() error {
 
 	switch SourceType(s.Type) {
 	case FacebookSource:
+		if err := validate.Var(*s.Email, "required"); err != nil {
+			return errSourceEmailRequired
+		}
 	case PastebinSource:
-		if err := validate.Var(s.APIKey, "required"); err != nil {
+		if err := validate.Var(*s.APIKey, "required"); err != nil {
 			return errSourceAPIKeyRequired
+		}
+	case LinkedInSource:
+		if err := validate.Var(*s.Email, "required"); err != nil {
+			return errSourceEmailRequired
 		}
 	default:
 		return errSourceTypeInvalid
