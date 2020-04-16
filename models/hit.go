@@ -1,9 +1,20 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
+	"github.com/go-playground/validator/v10"
+
 	"github.com/spaceraccoon/manuka-server/config"
+)
+
+var (
+	ErrHitCredentialIDRequired = fmt.Errorf("hit credential id required")
+	ErrHitHoneypotIDRequired   = fmt.Errorf("hit honeypot id required")
+	ErrHitListenerIDRequired   = fmt.Errorf("hit listener id required")
+	ErrHitSourceIDRequired     = fmt.Errorf("hit source id required")
+	ErrHitIPAddressRequired    = fmt.Errorf("hit ip address required")
 )
 
 // Hit model
@@ -12,11 +23,55 @@ type Hit struct {
 	CreatedAt    time.Time  `json:"createdAt"`
 	UpdatedAt    time.Time  `json:"updatedAt"`
 	DeletedAt    *time.Time `json:"deletedAt"`
-	CredentialID uint       `json:"credentialId"`
-	HoneypotID   uint       `json:"honeypotId"`
-	ListenerID   uint       `json:"listenerId"`
-	SourceID     uint       `json:"sourceId"`
-	IPAddress    string     `json:"ipAddress;not null"`
+	CredentialID uint       `json:"credentialId" validate:"required"`
+	HoneypotID   uint       `json:"honeypotId" validate:"required"`
+	ListenerID   uint       `json:"listenerId" validate:"required"`
+	SourceID     uint       `json:"sourceId" validate:"required"`
+	IPAddress    string     `json:"ipAddress" validate:"required"`
+}
+
+// Validate validates struct fields
+func (h *Hit) Validate() error {
+	validate := validator.New()
+	if err := validate.Struct(h); err != nil {
+		if _, ok := err.(*validator.InvalidValidationError); ok {
+			return err
+		}
+
+		for _, validationErr := range err.(validator.ValidationErrors) {
+			switch validationErr.StructField() {
+			case "CredentialID":
+				switch validationErr.ActualTag() {
+				case "required":
+					return ErrHitCredentialIDRequired
+				}
+			case "HoneypotID":
+				switch validationErr.ActualTag() {
+				case "required":
+					return ErrHitHoneypotIDRequired
+				}
+			case "ListenerID":
+				switch validationErr.ActualTag() {
+				case "required":
+					return ErrHitListenerIDRequired
+				}
+			case "SourceID":
+				switch validationErr.ActualTag() {
+				case "required":
+					return ErrHitSourceIDRequired
+				}
+			case "IPAddress":
+				switch validationErr.ActualTag() {
+				case "required":
+					return ErrHitIPAddressRequired
+				}
+			default:
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 // GetHits gets all hits in database

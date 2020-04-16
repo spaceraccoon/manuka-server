@@ -4,7 +4,14 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/go-playground/validator/v10"
+
 	"github.com/spaceraccoon/manuka-server/config"
+)
+
+var (
+	ErrSourceNameRequired   = fmt.Errorf("source name required")
+	ErrSourceAPIKeyRequired = fmt.Errorf("source api key required")
 )
 
 // SourceType defines the different fake OSINT sources
@@ -22,10 +29,42 @@ type Source struct {
 	CreatedAt time.Time  `json:"createdAt"`
 	UpdatedAt time.Time  `json:"updatedAt"`
 	DeletedAt *time.Time `json:"deletedAt"`
-	Name      string     `gorm:"not null" json:"name"`
-	Type      uint       `json:"type"`
+	Name      string     `gorm:"not null" json:"name" validate:"required"`
+	Type      uint       `json:"type" validate:"required"`
 	APIKey    string     `json:"apiKey"`
 	Honeypots []Honeypot `json:"honeypots"`
+}
+
+// Validate validates struct fields
+func (s *Source) Validate() error {
+	validate := validator.New()
+	if err := validate.Struct(s); err != nil {
+		if _, ok := err.(*validator.InvalidValidationError); ok {
+			return err
+		}
+
+		for _, validationErr := range err.(validator.ValidationErrors) {
+			switch validationErr.StructField() {
+			case "Name":
+				switch validationErr.ActualTag() {
+				case "required":
+					return ErrSourceNameRequired
+				}
+			default:
+				return err
+			}
+		}
+	}
+
+	switch SourceType(s.Type) {
+	case Pastebin:
+		if err := validate.Var(s.APIKey, "required"); err != nil {
+			return ErrSourceAPIKeyRequired
+		}
+	case Facebook:
+	}
+
+	return nil
 }
 
 // GetSources gets all sources in database
