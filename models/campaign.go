@@ -44,6 +44,14 @@ func (c *Campaign) Validate() error {
 		}
 	}
 
+	if len(c.Honeypots) > 0 {
+		for idx := range c.Honeypots {
+			if err := c.Honeypots[idx].Validate(); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 

@@ -64,6 +64,14 @@ func (s *Source) Validate() error {
 	case Facebook:
 	}
 
+	if len(s.Honeypots) > 0 {
+		for idx := range s.Honeypots {
+			if err := s.Honeypots[idx].Validate(); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
 

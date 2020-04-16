@@ -63,5 +63,13 @@ func (h *Honeypot) Validate() error {
 		}
 	}
 
+	if len(h.Credentials) > 0 {
+		for idx := range h.Credentials {
+			if err := h.Credentials[idx].Validate(); err != nil {
+				return err
+			}
+		}
+	}
+
 	return nil
 }
