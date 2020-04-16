@@ -24,9 +24,17 @@ func GetSources(c *gin.Context) {
 func CreateSource(c *gin.Context) {
 	var source models.Source
 	c.BindJSON(&source)
+	if err := source.Validate(); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
 	err := models.CreateSource(&source)
 	if err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
 		return
 	}
 	c.JSON(http.StatusCreated, source)
@@ -64,9 +72,17 @@ func UpdateSource(c *gin.Context) {
 		return
 	}
 	c.BindJSON(&source)
+	if err := source.Validate(); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
 	err = models.UpdateSource(&source, id)
 	if err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
 		return
 	}
 	c.JSON(http.StatusOK, source)

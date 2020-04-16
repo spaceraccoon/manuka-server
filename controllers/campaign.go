@@ -24,9 +24,16 @@ func GetCampaigns(c *gin.Context) {
 func CreateCampaign(c *gin.Context) {
 	var campaign models.Campaign
 	c.BindJSON(&campaign)
-	err := models.CreateCampaign(&campaign)
-	if err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
+	if err := campaign.Validate(); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
+	if err := models.CreateCampaign(&campaign); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
 		return
 	}
 	c.JSON(http.StatusCreated, campaign)
@@ -64,9 +71,17 @@ func UpdateCampaign(c *gin.Context) {
 		return
 	}
 	c.BindJSON(&campaign)
+	if err := campaign.Validate(); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
 	err = models.UpdateCampaign(&campaign, id)
 	if err != nil {
-		c.AbortWithStatus(http.StatusNotFound)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
 		return
 	}
 	c.JSON(http.StatusOK, campaign)
