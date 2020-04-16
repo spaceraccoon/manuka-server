@@ -10,7 +10,21 @@ import (
 )
 
 var (
-	ErrListenerNameRequired = fmt.Errorf("listener name required")
+	errListenerEmailRequired = fmt.Errorf("Listener email required")
+	errListenerNameRequired  = fmt.Errorf("Listener name required")
+	errListenerTypeRequired  = fmt.Errorf("Listenter type required")
+	errListenerURLRequired   = fmt.Errorf("Listener URL required")
+	errListenerTypeInvalid   = fmt.Errorf("Listener type invalid")
+)
+
+// ListenerType defines the different listener types
+type ListenerType int
+
+// Enumerate various listeners
+const (
+	FacebookListener ListenerType = iota
+	LoginListener
+	LinkedInListener
 )
 
 // Listener model
@@ -20,6 +34,9 @@ type Listener struct {
 	UpdatedAt time.Time  `json:"updatedAt"`
 	DeletedAt *time.Time `json:"deletedAt"`
 	Name      string     `json:"name" validate:"required"`
+	Type      uint       `json:"type" validate:"required"`
+	URL       string     `json:"url"`
+	Email     string     `json:"email"`
 }
 
 // Validate validates struct fields
@@ -35,12 +52,29 @@ func (l *Listener) Validate() error {
 			case "Name":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrListenerNameRequired
+					return errListenerNameRequired
 				}
 			default:
 				return err
 			}
 		}
+	}
+
+	switch ListenerType(l.Type) {
+	case FacebookListener:
+		if err := validate.Var(l.Email, "required"); err != nil {
+			return errListenerEmailRequired
+		}
+	case LoginListener:
+		if err := validate.Var(l.URL, "required"); err != nil {
+			return errListenerURLRequired
+		}
+	case LinkedInListener:
+		if err := validate.Var(l.Email, "required"); err != nil {
+			return errListenerEmailRequired
+		}
+	default:
+		return errListenerTypeInvalid
 	}
 
 	return nil

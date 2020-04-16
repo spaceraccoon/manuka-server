@@ -23,16 +23,22 @@ func GetCampaigns(c *gin.Context) {
 // CreateCampaign creates a campaign and returns as JSON
 func CreateCampaign(c *gin.Context) {
 	var campaign models.Campaign
-	c.BindJSON(&campaign)
+	err := c.BindJSON(&campaign)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	if err := campaign.Validate(); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}
 	if err := models.CreateCampaign(&campaign); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}
@@ -70,17 +76,21 @@ func UpdateCampaign(c *gin.Context) {
 		c.JSON(http.StatusNotFound, campaign)
 		return
 	}
-	c.BindJSON(&campaign)
+	err = c.BindJSON(&campaign)
+	if err != nil {
+		c.AbortWithStatus(http.StatusInternalServerError)
+		return
+	}
 	if err := campaign.Validate(); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}
 	err = models.UpdateCampaign(&campaign, id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}
@@ -93,7 +103,9 @@ func DeleteCampaign(c *gin.Context) {
 	var campaign models.Campaign
 	id, err := strconv.ParseInt(c.Params.ByName("id"), 10, 64)
 	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 	err = models.DeleteCampaign(&campaign, id)

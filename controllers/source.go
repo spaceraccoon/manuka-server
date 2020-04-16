@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -23,17 +24,24 @@ func GetSources(c *gin.Context) {
 // CreateSource creates a source and returns as JSON
 func CreateSource(c *gin.Context) {
 	var source models.Source
-	c.BindJSON(&source)
-	if err := source.Validate(); err != nil {
+	err := c.BindJSON(&source)
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}
-	err := models.CreateSource(&source)
+	if err := source.Validate(); err != nil {
+		fmt.Println(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	err = models.CreateSource(&source)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}
@@ -71,17 +79,23 @@ func UpdateSource(c *gin.Context) {
 		c.JSON(http.StatusNotFound, source)
 		return
 	}
-	c.BindJSON(&source)
+	err = c.BindJSON(&source)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	if err := source.Validate(); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}
 	err = models.UpdateSource(&source, id)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 		return
 	}

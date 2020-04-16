@@ -10,11 +10,11 @@ import (
 )
 
 var (
-	ErrHitCredentialIDRequired = fmt.Errorf("hit credential id required")
-	ErrHitHoneypotIDRequired   = fmt.Errorf("hit honeypot id required")
-	ErrHitListenerIDRequired   = fmt.Errorf("hit listener id required")
-	ErrHitSourceIDRequired     = fmt.Errorf("hit source id required")
-	ErrHitIPAddressRequired    = fmt.Errorf("hit ip address required")
+	errHitCredentialIDRequired = fmt.Errorf("Hit credential ID required")
+	errHitHoneypotIDRequired   = fmt.Errorf("Hit honeypot ID required")
+	errHitListenerIDRequired   = fmt.Errorf("Hit listener ID required")
+	errHitSourceIDRequired     = fmt.Errorf("Hit source ID required")
+	errHitIPAddressRequired    = fmt.Errorf("Hit IP address required")
 )
 
 // Hit model
@@ -43,27 +43,27 @@ func (h *Hit) Validate() error {
 			case "CredentialID":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrHitCredentialIDRequired
+					return errHitCredentialIDRequired
 				}
 			case "HoneypotID":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrHitHoneypotIDRequired
+					return errHitHoneypotIDRequired
 				}
 			case "ListenerID":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrHitListenerIDRequired
+					return errHitListenerIDRequired
 				}
 			case "SourceID":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrHitSourceIDRequired
+					return errHitSourceIDRequired
 				}
 			case "IPAddress":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrHitIPAddressRequired
+					return errHitIPAddressRequired
 				}
 			default:
 				return err

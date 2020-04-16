@@ -8,10 +8,9 @@ import (
 )
 
 var (
-	ErrHoneypotNameRequired       = fmt.Errorf("honeypot name required")
-	ErrHoneypotCampaignIDRequired = fmt.Errorf("honeypot campaign id required")
-	ErrHoneypotListenerIDRequired = fmt.Errorf("honeypot listener id required")
-	ErrHoneypotSourceIDRequired   = fmt.Errorf("honeypot source id required")
+	errHoneypotNameRequired       = fmt.Errorf("Honeypot name required")
+	errHoneypotListenerIDRequired = fmt.Errorf("Honeypot listener ID required")
+	errHoneypotSourceIDRequired   = fmt.Errorf("Honeypot source ID required")
 )
 
 // Honeypot model
@@ -21,7 +20,7 @@ type Honeypot struct {
 	UpdatedAt   time.Time    `json:"updatedAt"`
 	DeletedAt   *time.Time   `json:"deletedAt"`
 	Name        string       `json:"name" validate:"required"`
-	CampaignID  uint         `json:"campaignId" validate:"required"`
+	CampaignID  uint         `json:"campaignId"`
 	Credentials []Credential `json:"credentials"`
 	ListenerID  uint         `json:"listenerId" validate:"required"`
 	SourceID    uint         `json:"sourceId" validate:"required"`
@@ -40,22 +39,17 @@ func (h *Honeypot) Validate() error {
 			case "Name":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrHoneypotNameRequired
-				}
-			case "CampaignID":
-				switch validationErr.ActualTag() {
-				case "required":
-					return ErrHoneypotCampaignIDRequired
+					return errHoneypotNameRequired
 				}
 			case "ListenerID":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrHoneypotListenerIDRequired
+					return errHoneypotListenerIDRequired
 				}
 			case "SourceID":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrHoneypotSourceIDRequired
+					return errHoneypotSourceIDRequired
 				}
 			default:
 				return err

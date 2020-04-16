@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	ErrCampaignNameRequired = fmt.Errorf("campaign name is required")
+	errCampaignNameRequired = fmt.Errorf("Campaign name is required")
 )
 
 // Campaign model
@@ -36,7 +36,7 @@ func (c *Campaign) Validate() error {
 			case "Name":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrCampaignNameRequired
+					return errCampaignNameRequired
 				}
 			default:
 				return err

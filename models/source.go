@@ -10,8 +10,10 @@ import (
 )
 
 var (
-	ErrSourceNameRequired   = fmt.Errorf("source name required")
-	ErrSourceAPIKeyRequired = fmt.Errorf("source api key required")
+	errSourceNameRequired   = fmt.Errorf("Source name required")
+	errSourceAPIKeyRequired = fmt.Errorf("Source API key required")
+	errSourceTypeRequired   = fmt.Errorf("Source type required")
+	errSourceTypeInvalid    = fmt.Errorf("Source type invalid")
 )
 
 // SourceType defines the different fake OSINT sources
@@ -19,8 +21,8 @@ type SourceType int
 
 // Enumerate various actions
 const (
-	Pastebin SourceType = iota
-	Facebook
+	FacebookSource SourceType = iota
+	PastebinSource
 )
 
 // Source model
@@ -48,7 +50,12 @@ func (s *Source) Validate() error {
 			case "Name":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrSourceNameRequired
+					return errSourceNameRequired
+				}
+			case "Type":
+				switch validationErr.ActualTag() {
+				case "required":
+					return errSourceTypeRequired
 				}
 			default:
 				return err
@@ -57,11 +64,13 @@ func (s *Source) Validate() error {
 	}
 
 	switch SourceType(s.Type) {
-	case Pastebin:
+	case FacebookSource:
+	case PastebinSource:
 		if err := validate.Var(s.APIKey, "required"); err != nil {
-			return ErrSourceAPIKeyRequired
+			return errSourceAPIKeyRequired
 		}
-	case Facebook:
+	default:
+		return errSourceTypeInvalid
 	}
 
 	if len(s.Honeypots) > 0 {

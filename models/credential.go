@@ -8,9 +8,9 @@ import (
 )
 
 var (
-	ErrCredentialUsernameRequired   = fmt.Errorf("credential username required")
-	ErrCredentialPasswordRequired   = fmt.Errorf("credential password required")
-	ErrCredentialHoneypotIDRequired = fmt.Errorf("credential honeypot id required")
+	errCredentialUsernameRequired   = fmt.Errorf("Credential username required")
+	errCredentialPasswordRequired   = fmt.Errorf("Credential password required")
+	errCredentialHoneypotIDRequired = fmt.Errorf("Credential honeypot ID required")
 )
 
 // Credential model
@@ -37,17 +37,17 @@ func (c *Credential) Validate() error {
 			case "Username":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrCredentialUsernameRequired
+					return errCredentialUsernameRequired
 				}
 			case "Password":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrCredentialPasswordRequired
+					return errCredentialPasswordRequired
 				}
 			case "HoneypotID":
 				switch validationErr.ActualTag() {
 				case "required":
-					return ErrCredentialHoneypotIDRequired
+					return errCredentialHoneypotIDRequired
 				}
 			default:
 				return err
