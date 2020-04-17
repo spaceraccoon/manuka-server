@@ -57,3 +57,8 @@ func (c *Credential) Validate() error {
 
 	return nil
 }
+
+// BeforeSave hook validates credential
+func (c *Credential) BeforeSave() (err error) {
+	return c.Validate()
+}

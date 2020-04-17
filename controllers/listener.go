@@ -30,12 +30,6 @@ func CreateListener(c *gin.Context) {
 		})
 		return
 	}
-	if err := listener.Validate(); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
 	err = models.CreateListener(&listener)
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
@@ -79,12 +73,6 @@ func UpdateListener(c *gin.Context) {
 	}
 	err = c.BindJSON(&listener)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
-	}
-	if err := listener.Validate(); err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})

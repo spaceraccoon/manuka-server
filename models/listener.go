@@ -75,6 +75,11 @@ func (l *Listener) Validate() error {
 	return nil
 }
 
+// BeforeSave hook validates listener
+func (l *Listener) BeforeSave() (err error) {
+	return l.Validate()
+}
+
 // GetListeners gets all listeners in database
 func GetListeners(listeners *[]Listener) (err error) {
 	if err = config.DB.Find(&listeners).Error; err != nil {

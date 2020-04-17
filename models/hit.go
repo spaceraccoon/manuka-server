@@ -74,6 +74,11 @@ func (h *Hit) Validate() error {
 	return nil
 }
 
+// BeforeSave hook validates hit
+func (h *Hit) BeforeSave() (err error) {
+	return h.Validate()
+}
+
 // GetHits gets all hits in database
 func GetHits(hits *[]Hit) (err error) {
 	if err = config.DB.Find(&hits).Error; err != nil {

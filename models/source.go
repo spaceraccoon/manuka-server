@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
-
+	"github.com/lib/pq"
 	"github.com/spaceraccoon/manuka-server/config"
 )
 
@@ -29,15 +29,16 @@ const (
 
 // Source model
 type Source struct {
-	ID        uint       `gorm:"primary_key" json:"id"`
-	CreatedAt time.Time  `json:"createdAt"`
-	UpdatedAt time.Time  `json:"updatedAt"`
-	DeletedAt *time.Time `json:"deletedAt"`
-	Name      string     `gorm:"not null" json:"name" validate:"required"`
-	Type      uint       `json:"type" validate:"required"`
-	APIKey    *string    `json:"apiKey"`
-	Email     *string    `json:"email"`
-	Honeypots []Honeypot `json:"honeypots"`
+	ID           uint           `gorm:"primary_key" json:"id"`
+	CreatedAt    time.Time      `json:"createdAt"`
+	UpdatedAt    time.Time      `json:"updatedAt"`
+	DeletedAt    *time.Time     `json:"deletedAt"`
+	Name         string         `gorm:"not null" json:"name" validate:"required"`
+	Type         uint           `json:"type" validate:"required"`
+	APIKey       *string        `json:"apiKey"`
+	Email        *string        `json:"email"`
+	Honeypots    []Honeypot     `json:"honeypots"`
+	PastebinURLs pq.StringArray `gorm:"type:varchar(100)[]" json:"pastebinUrls"`
 }
 
 // Validate validates struct fields
@@ -92,6 +93,11 @@ func (s *Source) Validate() error {
 	}
 
 	return nil
+}
+
+// BeforeSave hook validates source
+func (s *Source) BeforeSave() (err error) {
+	return s.Validate()
 }
 
 // GetSources gets all sources in database

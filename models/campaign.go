@@ -55,6 +55,11 @@ func (c *Campaign) Validate() error {
 	return nil
 }
 
+// BeforeSave hook validates campaign
+func (c *Campaign) BeforeSave() (err error) {
+	return c.Validate()
+}
+
 // GetCampaigns gets all campaigns in database
 func GetCampaigns(campaigns *[]Campaign) (err error) {
 	if err = config.DB.Preload("Honeypots").Find(&campaigns).Error; err != nil {
