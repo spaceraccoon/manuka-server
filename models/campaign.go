@@ -21,6 +21,7 @@ type Campaign struct {
 	DeletedAt *time.Time `json:"deletedAt"`
 	Name      string     `json:"name" validate:"required"`
 	Honeypots []Honeypot `json:"honeypots"`
+	Hits      []Hit      `json:"hits"`
 }
 
 // Validate validates struct fields
@@ -62,7 +63,7 @@ func (c *Campaign) BeforeSave() (err error) {
 
 // GetCampaigns gets all campaigns in database
 func GetCampaigns(campaigns *[]Campaign) (err error) {
-	if err = config.DB.Preload("Honeypots").Find(&campaigns).Error; err != nil {
+	if err = config.DB.Preload("Honeypots").Preload("Hits").Find(&campaigns).Error; err != nil {
 		return err
 	}
 	return nil
