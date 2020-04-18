@@ -65,6 +65,26 @@ func CreateHit(c *gin.Context) {
 			IPAddress:    listenerHit.IPAddress,
 			Type:         listenerHit.HitType,
 		}
+	case models.SocialListener:
+		// For now, there is no difference in proccessing of Social hits and Login hits
+		var credential models.Credential
+		if err := config.DB.Where("username = ?", listenerHit.Email).First(&credential).Error; err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		var honeypot models.Honeypot
+		config.DB.Model(credential).Related(&honeypot)
+		hit = models.Hit{
+			CampaignID:   honeypot.CampaignID,
+			CredentialID: credential.ID,
+			HoneypotID:   credential.HoneypotID,
+			ListenerID:   listenerHit.ListenerID,
+			SourceID:     honeypot.SourceID,
+			IPAddress:    listenerHit.IPAddress,
+			Type:         listenerHit.HitType,
+		}
 	default:
 		log.Fatal("Environment variable LISTENER_TYPE must be one of login, social")
 	}
