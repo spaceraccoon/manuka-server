@@ -12,9 +12,21 @@ import (
 var (
 	errHitCredentialIDRequired = fmt.Errorf("Hit credential ID required")
 	errHitHoneypotIDRequired   = fmt.Errorf("Hit honeypot ID required")
+	errHitIPAddressRequired    = fmt.Errorf("Hit IP address required")
 	errHitListenerIDRequired   = fmt.Errorf("Hit listener ID required")
 	errHitSourceIDRequired     = fmt.Errorf("Hit source ID required")
-	errHitIPAddressRequired    = fmt.Errorf("Hit IP address required")
+	errHitTypeRequired         = fmt.Errorf("Hit type required")
+)
+
+// HitType defines the different hits
+type HitType int
+
+// Enumerate various actions
+const (
+	FacebookRequest HitType = iota + 1
+	LoginAttempt
+	LinkedInRequest
+	LinkedInMessage
 )
 
 // Hit model
@@ -28,6 +40,7 @@ type Hit struct {
 	ListenerID   uint       `json:"listenerId" validate:"required"`
 	SourceID     uint       `json:"sourceId" validate:"required"`
 	IPAddress    string     `json:"ipAddress" validate:"required"`
+	Type         HitType    `json:"type" validate:"required"`
 }
 
 // Validate validates struct fields
@@ -50,6 +63,11 @@ func (h *Hit) Validate() error {
 				case "required":
 					return errHitHoneypotIDRequired
 				}
+			case "IPAddress":
+				switch validationErr.ActualTag() {
+				case "required":
+					return errHitIPAddressRequired
+				}
 			case "ListenerID":
 				switch validationErr.ActualTag() {
 				case "required":
@@ -60,10 +78,10 @@ func (h *Hit) Validate() error {
 				case "required":
 					return errHitSourceIDRequired
 				}
-			case "IPAddress":
+			case "Type":
 				switch validationErr.ActualTag() {
 				case "required":
-					return errHitIPAddressRequired
+					return errHitTypeRequired
 				}
 			default:
 				return err
@@ -82,6 +100,14 @@ func (h *Hit) BeforeSave() (err error) {
 // GetHits gets all hits in database
 func GetHits(hits *[]Hit) (err error) {
 	if err = config.DB.Find(&hits).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// CreateHit creates a hit in the database
+func CreateHit(hit *Hit) (err error) {
+	if err = config.DB.Create(hit).Error; err != nil {
 		return err
 	}
 	return nil

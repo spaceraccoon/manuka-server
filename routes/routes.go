@@ -17,6 +17,7 @@ func SetupRouter() *gin.Engine {
 		v1.PUT("campaign/:id", controllers.UpdateCampaign)
 		v1.DELETE("campaign/:id", controllers.DeleteCampaign)
 		v1.GET("hit", controllers.GetHits)
+		v1.POST("hit", controllers.CreateHit)
 		v1.GET("hit/:id", controllers.GetHit)
 		v1.DELETE("hit/:id", controllers.DeleteHit)
 		v1.GET("listener", controllers.GetListeners)
