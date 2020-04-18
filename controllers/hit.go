@@ -19,7 +19,7 @@ type ListenerHit struct {
 	Username     string              `json:"username"`
 	Password     string              `json:"password"`
 	Email        string              `json:"email"`
-	Description  string              `json:"description"`
+	HitType      models.HitType      `json:"hitType"`
 }
 
 // GetHits gets all hits and returns as JSON
@@ -60,7 +60,7 @@ func CreateHit(c *gin.Context) {
 			ListenerID:   listenerHit.ListenerID,
 			SourceID:     honeypot.SourceID,
 			IPAddress:    listenerHit.IPAddress,
-			Description:  listenerHit.Description,
+			Type:         listenerHit.HitType,
 		}
 	default:
 		log.Fatal("Environment variable LISTENER_TYPE must be one of login, social")

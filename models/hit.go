@@ -18,10 +18,10 @@ var (
 	errHitTypeRequired         = fmt.Errorf("Hit type required")
 )
 
-// HitType defines the different hits
+// HitType defines the different hit types
 type HitType int
 
-// Enumerate various actions
+// Enumerate various hits
 const (
 	FacebookRequest HitType = iota + 1
 	LoginAttempt
