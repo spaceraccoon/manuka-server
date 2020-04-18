@@ -106,8 +106,9 @@ func GetListener(listener *Listener, id int64) (err error) {
 
 // UpdateListener updates a listener in the database
 func UpdateListener(listener *Listener, id int64) (err error) {
-	fmt.Println(listener)
-	config.DB.Model(&listener).Update(listener)
+	if err = config.DB.Model(&listener).Update(listener).Error; err != nil {
+		return err
+	}
 	return nil
 }
 

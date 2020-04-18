@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	errHitCampaignIDRequired   = fmt.Errorf("Hit campaign ID required")
 	errHitCredentialIDRequired = fmt.Errorf("Hit credential ID required")
 	errHitHoneypotIDRequired   = fmt.Errorf("Hit honeypot ID required")
 	errHitIPAddressRequired    = fmt.Errorf("Hit IP address required")
@@ -35,6 +36,7 @@ type Hit struct {
 	CreatedAt    time.Time  `json:"createdAt"`
 	UpdatedAt    time.Time  `json:"updatedAt"`
 	DeletedAt    *time.Time `json:"deletedAt"`
+	CampaignID   uint       `json:"campaignId" validate:"required"`
 	CredentialID uint       `json:"credentialId" validate:"required"`
 	HoneypotID   uint       `json:"honeypotId" validate:"required"`
 	ListenerID   uint       `json:"listenerId" validate:"required"`
@@ -53,6 +55,11 @@ func (h *Hit) Validate() error {
 
 		for _, validationErr := range err.(validator.ValidationErrors) {
 			switch validationErr.StructField() {
+			case "CampaignID":
+				switch validationErr.ActualTag() {
+				case "required":
+					return errHitCampaignIDRequired
+				}
 			case "CredentialID":
 				switch validationErr.ActualTag() {
 				case "required":

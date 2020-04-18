@@ -86,7 +86,9 @@ func GetCampaign(campaign *Campaign, id int64) (err error) {
 
 // UpdateCampaign updates a campaign in the database
 func UpdateCampaign(campaign *Campaign, id int64) (err error) {
-	config.DB.Model(&campaign).Update(campaign)
+	if err = config.DB.Model(&campaign).Update(campaign).Error; err != nil {
+		return err
+	}
 	return nil
 }
 

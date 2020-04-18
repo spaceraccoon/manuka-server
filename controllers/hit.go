@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -44,17 +43,21 @@ func CreateHit(c *gin.Context) {
 		})
 		return
 	}
-	if listenerHit.ListenerType == models.LoginListener {
-		fmt.Println("login")
-	}
+
 	var hit models.Hit
 	switch listenerHit.ListenerType {
 	case models.LoginListener:
 		var credential models.Credential
-		config.DB.Where("username = ? AND password = ?", listenerHit.Username, listenerHit.Password).First(&credential)
+		if err := config.DB.Where("username = ? AND password = ?", listenerHit.Username, listenerHit.Password).First(&credential).Error; err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
 		var honeypot models.Honeypot
 		config.DB.Model(credential).Related(&honeypot)
 		hit = models.Hit{
+			CampaignID:   honeypot.CampaignID,
 			CredentialID: credential.ID,
 			HoneypotID:   credential.HoneypotID,
 			ListenerID:   listenerHit.ListenerID,

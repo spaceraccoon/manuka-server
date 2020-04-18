@@ -37,7 +37,7 @@ func CreatePaste(paste *Paste) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if strings.HasPrefix(string(body), "Bad API request") {
+	if !strings.HasPrefix(string(body), "https://") {
 		return "", errors.New(string(body))
 	}
 	return string(body), nil

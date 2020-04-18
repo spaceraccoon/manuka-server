@@ -20,6 +20,7 @@ func SetupRouter() *gin.Engine {
 		v1.POST("hit", controllers.CreateHit)
 		v1.GET("hit/:id", controllers.GetHit)
 		v1.DELETE("hit/:id", controllers.DeleteHit)
+		v1.GET("honeypot", controllers.GetHoneypots)
 		v1.GET("listener", controllers.GetListeners)
 		v1.POST("listener", controllers.CreateListener)
 		v1.GET("listener/:id", controllers.GetListener)

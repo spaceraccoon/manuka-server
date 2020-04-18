@@ -2,9 +2,11 @@ package models
 
 import (
 	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/jinzhu/gorm"
 	"github.com/spaceraccoon/manuka-server/config"
 	"github.com/spaceraccoon/manuka-server/utils"
 )
@@ -75,8 +77,16 @@ func (h *Honeypot) BeforeSave() (err error) {
 	return h.Validate()
 }
 
-// BeforeCreate creates and save the fake Pastebin credentials if the Honeypot has a Pastebin Source
-func (h *Honeypot) BeforeCreate() (err error) {
+// GetHoneypots gets all hits in database
+func GetHoneypots(honeypots *[]Honeypot) (err error) {
+	if err = config.DB.Find(&honeypots).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// AfterCreate creates and save the fake Pastebin credentials if the Honeypot has a Pastebin Source
+func (h *Honeypot) AfterCreate(scope *gorm.Scope) (err error) {
 	var source Source
 	config.DB.Model(h).Related(&source)
 	if SourceType(source.Type) == PastebinSource {
@@ -84,11 +94,18 @@ func (h *Honeypot) BeforeCreate() (err error) {
 		if err != nil {
 			return err
 		}
+
 		var listener Listener
 		config.DB.Model(h).Related(&listener)
+
+		u, err := url.Parse(*listener.URL)
+		if err != nil {
+			return err
+		}
+
 		paste := &utils.Paste{
-			Text:   credentials,
-			Name:   *listener.URL + " login", // Add listener URL to paste title
+			Text:   u.Host + "\n" + credentials,   // only include URL host to bypass spam filter
+			Name:   u.Host + " Login Credentials", // Add listener URL to paste title
 			APIKey: *source.APIKey,
 		}
 		pastebinURL, err := utils.CreatePaste(paste)
@@ -114,17 +131,20 @@ func (h *Honeypot) BeforeUpdate() (err error) {
 		if SourceType(source.Type) == PastebinSource {
 			credentials, err := CreateFakeCreds(h, &source)
 			if err != nil {
-				fmt.Println(err)
 				return err
 			}
+
+			var listener Listener
+			config.DB.Model(h).Related(&listener)
+
+			u, err := url.Parse(*listener.URL)
 			if err != nil {
 				return err
 			}
-			var listener Listener
-			config.DB.Model(h).Related(&listener)
+
 			paste := &utils.Paste{
-				Text:   credentials,
-				Name:   *listener.URL + " login", // Add listener URL to paste title
+				Text:   u.Host + "\n" + credentials, // only include URL host to bypass spam filter
+				Name:   "Login Credentials",         // Add listener URL to paste title
 				APIKey: *source.APIKey,
 			}
 			pastebinURL, err := utils.CreatePaste(paste)

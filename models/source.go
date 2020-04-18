@@ -126,8 +126,9 @@ func GetSource(source *Source, id int64) (err error) {
 
 // UpdateSource updates a source in the database
 func UpdateSource(source *Source, id int64) (err error) {
-	fmt.Println(source)
-	config.DB.Model(&source).Update(source)
+	if err = config.DB.Model(&source).Update(source).Error; err != nil {
+		return err
+	}
 	return nil
 }
 
