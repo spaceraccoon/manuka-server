@@ -43,7 +43,7 @@ func CreateSource(c *gin.Context) {
 
 // GetSource gets a source and returns as JSON
 func GetSource(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Params.ByName("id"), 10, 64)
+	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -61,7 +61,7 @@ func GetSource(c *gin.Context) {
 // UpdateSource updates a source and returns as JSON
 func UpdateSource(c *gin.Context) {
 	var source models.Source
-	id, err := strconv.ParseInt(c.Params.ByName("id"), 10, 64)
+	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -92,7 +92,7 @@ func UpdateSource(c *gin.Context) {
 // DeleteSource deletes a source
 func DeleteSource(c *gin.Context) {
 	var source models.Source
-	id, err := strconv.ParseInt(c.Params.ByName("id"), 10, 64)
+	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

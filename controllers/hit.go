@@ -19,6 +19,7 @@ type ListenerHit struct {
 	Password     string              `json:"password"`
 	Email        string              `json:"email"`
 	HitType      models.HitType      `json:"hitType"`
+	SourceType   models.SourceType   `json:"sourceType"`
 }
 
 // GetHits gets all hits and returns as JSON
@@ -43,7 +44,6 @@ func CreateHit(c *gin.Context) {
 		})
 		return
 	}
-
 	var hit models.Hit
 	switch listenerHit.ListenerType {
 	case models.LoginListener:
@@ -58,41 +58,47 @@ func CreateHit(c *gin.Context) {
 		config.DB.Model(credential).Related(&honeypot)
 		hit = models.Hit{
 			CampaignID:   honeypot.CampaignID,
-			CredentialID: credential.ID,
+			CredentialID: &credential.ID,
 			HoneypotID:   credential.HoneypotID,
 			ListenerID:   listenerHit.ListenerID,
 			SourceID:     honeypot.SourceID,
-			IPAddress:    listenerHit.IPAddress,
+			IPAddress:    &listenerHit.IPAddress,
 			Type:         listenerHit.HitType,
 		}
-	case models.SocialListener:
-		// For now, there is no difference in proccessing of Social hits and Login hits
-		var credential models.Credential
-		if err := config.DB.Where("username = ?", listenerHit.Email).First(&credential).Error; err != nil {
+		if err := models.CreateHit(&hit); err != nil {
 			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
-		var honeypot models.Honeypot
-		config.DB.Model(credential).Related(&honeypot)
-		hit = models.Hit{
-			CampaignID:   honeypot.CampaignID,
-			CredentialID: credential.ID,
-			HoneypotID:   credential.HoneypotID,
-			ListenerID:   listenerHit.ListenerID,
-			SourceID:     honeypot.SourceID,
-			IPAddress:    listenerHit.IPAddress,
-			Type:         listenerHit.HitType,
+	case models.SocialListener:
+		var source models.Source
+		if err := config.DB.Where("email = ? AND type = ?", listenerHit.Email, listenerHit.SourceType).First(&source).Error; err != nil {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+		var honeypots []models.Honeypot
+		config.DB.Model(source).Related(&honeypots)
+		for _, honeypot := range honeypots {
+			hit = models.Hit{
+				CampaignID: honeypot.CampaignID,
+				HoneypotID: honeypot.ID,
+				Email:      &listenerHit.Email,
+				ListenerID: listenerHit.ListenerID,
+				SourceID:   source.ID,
+				Type:       listenerHit.HitType,
+			}
+			if err := models.CreateHit(&hit); err != nil {
+				c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+					"error": err.Error(),
+				})
+				return
+			}
 		}
 	default:
 		log.Fatal("Environment variable LISTENER_TYPE must be one of login, social")
-	}
-	if err := models.CreateHit(&hit); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
-		return
 	}
 
 	c.JSON(http.StatusCreated, hit)
@@ -101,7 +107,7 @@ func CreateHit(c *gin.Context) {
 
 // GetHit gets a hit and returns as JSON
 func GetHit(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Params.ByName("id"), 10, 64)
+	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -119,7 +125,7 @@ func GetHit(c *gin.Context) {
 // DeleteHit deletes a Hit
 func DeleteHit(c *gin.Context) {
 	var Hit models.Hit
-	id, err := strconv.ParseInt(c.Params.ByName("id"), 10, 64)
+	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

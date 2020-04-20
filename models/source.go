@@ -117,7 +117,7 @@ func CreateSource(source *Source) (err error) {
 }
 
 // GetSource gets a source in the database corresponding to id
-func GetSource(source *Source, id int64) (err error) {
+func GetSource(source *Source, id int) (err error) {
 	if err := config.DB.First(&source, id).Error; err != nil {
 		return err
 	}
@@ -125,7 +125,7 @@ func GetSource(source *Source, id int64) (err error) {
 }
 
 // UpdateSource updates a source in the database
-func UpdateSource(source *Source, id int64) (err error) {
+func UpdateSource(source *Source, id int) (err error) {
 	if err = config.DB.Model(&source).Update(source).Error; err != nil {
 		return err
 	}
@@ -133,7 +133,7 @@ func UpdateSource(source *Source, id int64) (err error) {
 }
 
 // DeleteSource deletes a source in the database
-func DeleteSource(source *Source, id int64) (err error) {
+func DeleteSource(source *Source, id int) (err error) {
 	config.DB.Where("id = ?", id).Delete(source)
 	return nil
 }

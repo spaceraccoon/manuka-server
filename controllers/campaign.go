@@ -42,7 +42,7 @@ func CreateCampaign(c *gin.Context) {
 
 // GetCampaign gets a campaign and returns as JSON
 func GetCampaign(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Params.ByName("id"), 10, 64)
+	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -60,7 +60,7 @@ func GetCampaign(c *gin.Context) {
 // UpdateCampaign updates a campaign and returns as JSON
 func UpdateCampaign(c *gin.Context) {
 	var campaign models.Campaign
-	id, err := strconv.ParseInt(c.Params.ByName("id"), 10, 64)
+	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -89,7 +89,7 @@ func UpdateCampaign(c *gin.Context) {
 // DeleteCampaign deletes a campaign
 func DeleteCampaign(c *gin.Context) {
 	var campaign models.Campaign
-	id, err := strconv.ParseInt(c.Params.ByName("id"), 10, 64)
+	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),

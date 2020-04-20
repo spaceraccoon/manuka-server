@@ -78,7 +78,7 @@ func CreateCampaign(campaign *Campaign) (err error) {
 }
 
 // GetCampaign gets a campaign in the database corresponding to id
-func GetCampaign(campaign *Campaign, id int64) (err error) {
+func GetCampaign(campaign *Campaign, id int) (err error) {
 	if err := config.DB.Preload("Honeypots").First(&campaign, id).Error; err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func GetCampaign(campaign *Campaign, id int64) (err error) {
 }
 
 // UpdateCampaign updates a campaign in the database
-func UpdateCampaign(campaign *Campaign, id int64) (err error) {
+func UpdateCampaign(campaign *Campaign, id int) (err error) {
 	if err = config.DB.Model(&campaign).Update(campaign).Error; err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func UpdateCampaign(campaign *Campaign, id int64) (err error) {
 }
 
 // DeleteCampaign deletes a campaign in the database
-func DeleteCampaign(campaign *Campaign, id int64) (err error) {
+func DeleteCampaign(campaign *Campaign, id int) (err error) {
 	config.DB.Where("id = ?", id).Delete(campaign)
 	return nil
 }

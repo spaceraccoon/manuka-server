@@ -97,7 +97,7 @@ func CreateListener(listener *Listener) (err error) {
 }
 
 // GetListener gets a listener in the database corresponding to id
-func GetListener(listener *Listener, id int64) (err error) {
+func GetListener(listener *Listener, id int) (err error) {
 	if err := config.DB.First(&listener, id).Error; err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func GetListener(listener *Listener, id int64) (err error) {
 }
 
 // UpdateListener updates a listener in the database
-func UpdateListener(listener *Listener, id int64) (err error) {
+func UpdateListener(listener *Listener, id int) (err error) {
 	if err = config.DB.Model(&listener).Update(listener).Error; err != nil {
 		return err
 	}
@@ -113,7 +113,7 @@ func UpdateListener(listener *Listener, id int64) (err error) {
 }
 
 // DeleteListener deletes a listener in the database
-func DeleteListener(listener *Listener, id int64) (err error) {
+func DeleteListener(listener *Listener, id int) (err error) {
 	config.DB.Where("id = ?", id).Delete(listener)
 	return nil
 }

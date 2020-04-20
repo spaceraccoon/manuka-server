@@ -104,8 +104,8 @@ func (h *Honeypot) AfterCreate(scope *gorm.Scope) (err error) {
 		}
 
 		paste := &utils.Paste{
-			Text:   u.Host + "\n" + credentials,   // only include URL host to bypass spam filter
-			Name:   u.Host + " Login Credentials", // Add listener URL to paste title
+			Text:   u.Host + "\n" + credentials, // only include URL host to bypass spam filter
+			Name:   "Login Credentials",
 			APIKey: *source.APIKey,
 		}
 		pastebinURL, err := utils.CreatePaste(paste)
@@ -144,7 +144,7 @@ func (h *Honeypot) BeforeUpdate() (err error) {
 
 			paste := &utils.Paste{
 				Text:   u.Host + "\n" + credentials, // only include URL host to bypass spam filter
-				Name:   "Login Credentials",         // Add listener URL to paste title
+				Name:   "Login Credentials",
 				APIKey: *source.APIKey,
 			}
 			pastebinURL, err := utils.CreatePaste(paste)

@@ -43,7 +43,7 @@ func CreateListener(c *gin.Context) {
 
 // GetListener gets a listener and returns as JSON
 func GetListener(c *gin.Context) {
-	id, err := strconv.ParseInt(c.Params.ByName("id"), 10, 64)
+	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -61,7 +61,7 @@ func GetListener(c *gin.Context) {
 // UpdateListener updates a listener and returns as JSON
 func UpdateListener(c *gin.Context) {
 	var listener models.Listener
-	id, err := strconv.ParseInt(c.Params.ByName("id"), 10, 64)
+	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return
@@ -92,7 +92,7 @@ func UpdateListener(c *gin.Context) {
 // DeleteListener deletes a listener
 func DeleteListener(c *gin.Context) {
 	var listener models.Listener
-	id, err := strconv.ParseInt(c.Params.ByName("id"), 10, 64)
+	id, err := strconv.Atoi(c.Params.ByName("id"))
 	if err != nil {
 		c.AbortWithStatus(http.StatusInternalServerError)
 		return

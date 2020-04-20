@@ -12,6 +12,7 @@ import (
 var (
 	errHitCampaignIDRequired   = fmt.Errorf("Hit campaign ID required")
 	errHitCredentialIDRequired = fmt.Errorf("Hit credential ID required")
+	errHitEmailRequired        = fmt.Errorf("Hit email required")
 	errHitHoneypotIDRequired   = fmt.Errorf("Hit honeypot ID required")
 	errHitIPAddressRequired    = fmt.Errorf("Hit IP address required")
 	errHitListenerIDRequired   = fmt.Errorf("Hit listener ID required")
@@ -27,7 +28,7 @@ const (
 	FacebookRequest HitType = iota + 1
 	LoginAttempt
 	LinkedInRequest
-	LinkedInMessage
+	LinkedInConnect
 )
 
 // Hit model
@@ -37,11 +38,12 @@ type Hit struct {
 	UpdatedAt    time.Time  `json:"updatedAt"`
 	DeletedAt    *time.Time `json:"deletedAt"`
 	CampaignID   uint       `json:"campaignId" validate:"required"`
-	CredentialID uint       `json:"credentialId" validate:"required"`
+	CredentialID *uint      `json:"credentialId"`
+	Email        *string    `json:"email"`
 	HoneypotID   uint       `json:"honeypotId" validate:"required"`
 	ListenerID   uint       `json:"listenerId" validate:"required"`
 	SourceID     uint       `json:"sourceId" validate:"required"`
-	IPAddress    string     `json:"ipAddress" validate:"required"`
+	IPAddress    *string    `json:"ipAddress"`
 	Type         HitType    `json:"type" validate:"required"`
 }
 
@@ -60,20 +62,10 @@ func (h *Hit) Validate() error {
 				case "required":
 					return errHitCampaignIDRequired
 				}
-			case "CredentialID":
-				switch validationErr.ActualTag() {
-				case "required":
-					return errHitCredentialIDRequired
-				}
 			case "HoneypotID":
 				switch validationErr.ActualTag() {
 				case "required":
 					return errHitHoneypotIDRequired
-				}
-			case "IPAddress":
-				switch validationErr.ActualTag() {
-				case "required":
-					return errHitIPAddressRequired
 				}
 			case "ListenerID":
 				switch validationErr.ActualTag() {
@@ -94,6 +86,30 @@ func (h *Hit) Validate() error {
 				return err
 			}
 		}
+	}
+
+	switch HitType(h.Type) {
+	case FacebookRequest:
+		if err := validate.Var(*h.Email, "required"); err != nil {
+			return errHitEmailRequired
+		}
+	case LoginAttempt:
+		if err := validate.Var(*h.CredentialID, "required"); err != nil {
+			return errHitCredentialIDRequired
+		}
+		if err := validate.Var(*h.IPAddress, "required"); err != nil {
+			return errHitIPAddressRequired
+		}
+	case LinkedInRequest:
+		if err := validate.Var(*h.Email, "required"); err != nil {
+			return errHitEmailRequired
+		}
+	case LinkedInConnect:
+		if err := validate.Var(*h.Email, "required"); err != nil {
+			return errHitEmailRequired
+		}
+	default:
+		return errSourceTypeInvalid
 	}
 
 	return nil
@@ -121,7 +137,7 @@ func CreateHit(hit *Hit) (err error) {
 }
 
 // GetHit gets a hit in the database corresponding to id
-func GetHit(hit *Hit, id int64) (err error) {
+func GetHit(hit *Hit, id int) (err error) {
 	if err := config.DB.First(&hit, id).Error; err != nil {
 		return err
 	}
@@ -129,7 +145,7 @@ func GetHit(hit *Hit, id int64) (err error) {
 }
 
 // DeleteHit deletes a hit in the database
-func DeleteHit(hit *Hit, id int64) (err error) {
+func DeleteHit(hit *Hit, id int) (err error) {
 	config.DB.Where("id = ?", id).Delete(hit)
 	return nil
 }
