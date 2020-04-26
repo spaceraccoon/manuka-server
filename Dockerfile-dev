@@ -4,7 +4,7 @@ FROM golang:alpine
 WORKDIR /manuka-server
 
 # Copy project files for build
-ADD . .
+COPY . .
 
 # Install dependencies
 RUN apk add --no-cache git
